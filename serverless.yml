@@ -4,14 +4,16 @@ custom:
   prefixName: myMarket
   itemTableName: ${self:custom.prefixName}-itemTable
 
-  plugins:
-    - serverless-offline
+plugins:
+  - serverless-offline
 
 provider:
   name: aws
   runtime: nodejs12.x
   region: eu-west-3
   stage: ${opt:stage, 'dev'}
+  environment:
+    itemTableName: ${self:custom.itemTableName}
 
 functions:
   getItem:
