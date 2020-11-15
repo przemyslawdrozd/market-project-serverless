@@ -1,14 +1,12 @@
 const AWS = require('aws-sdk');
 const documentClient = new AWS.DynamoDB.DocumentClient();
 const tableName = process.env.itemTableName;
+const { v4 } = require('uuid');
 
 exports.handler = async (event) => {
 	try {
 		const newItem = JSON.parse(event.body);
-		console.log('newItem ', newItem);
-		console.log('tableName ', tableName);
-
-		newItem.itemId = 'uuid5';
+		newItem.itemId = v4();
 		const params = {
 			TableName: tableName,
 			Item: newItem,
