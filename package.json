@@ -15,5 +15,8 @@
 	"bugs": {
 		"url": "https://github.com/przemyslawdrozd/market-project-serverless/issues"
 	},
-	"homepage": "https://github.com/przemyslawdrozd/market-project-serverless#readme"
+	"homepage": "https://github.com/przemyslawdrozd/market-project-serverless#readme",
+	"dependencies": {
+		"serverless-offline": "^6.8.0"
+	}
 }

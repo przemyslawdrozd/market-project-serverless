@@ -1,5 +1,12 @@
 service: market-project
 
+custom:
+  prefixName: myMarket
+  itemTableName: ${self:custom.prefixName}-itemTable
+
+  plugins:
+    - serverless-offline
+
 provider:
   name: aws
   runtime: nodejs12.x
@@ -7,5 +14,31 @@ provider:
   stage: ${opt:stage, 'dev'}
 
 functions:
-  hello:
-    handler: handler.hello
+  getItem:
+    handler: src/handlers/getItem.handler
+    events:
+      - http:
+          path: /item/{id}
+          method: get
+  putItem:
+    handler: src/handlers/putItem.handler
+    events:
+      - http:
+          path: /item
+          method: post
+
+resources:
+  Resources:
+    ItemTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:custom.itemTableName}
+        AttributeDefinitions:
+          - AttributeName: itemId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: itemId
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
