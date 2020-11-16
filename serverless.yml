@@ -3,6 +3,7 @@ service: market-project
 custom:
   prefixName: myMarket
   itemTableName: ${self:custom.prefixName}-itemTable
+  transTableName: ${self:custom.prefixName}-transTable
 
 plugins:
   - serverless-offline
@@ -14,6 +15,7 @@ provider:
   stage: ${opt:stage, 'dev'}
   environment:
     itemTableName: ${self:custom.itemTableName}
+    transTableName: ${self:custom.transTableName}
 
 functions:
   getItem:
@@ -28,6 +30,12 @@ functions:
       - http:
           path: /item
           method: post
+  trans:
+    handler: src/handlers/trans.handler
+    events:
+      - http:
+          path: /trans/{type}/{cname}
+          method: post
 
 resources:
   Resources:
@@ -40,6 +48,19 @@ resources:
             AttributeType: S
         KeySchema:
           - AttributeName: itemId
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+    TransTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:custom.transTableName}
+        AttributeDefinitions:
+          - AttributeName: transId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: transId
             KeyType: HASH
         ProvisionedThroughput:
           ReadCapacityUnits: 1
