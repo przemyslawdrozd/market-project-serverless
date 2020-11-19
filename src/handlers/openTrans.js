@@ -11,7 +11,7 @@ exports.handler = async (event) => {
 			transId: v4(),
 			cname,
 			status: 'PROGRESS',
-			items: [],
+			cart: [],
 			toPay: 0,
 		};
 

@@ -77,6 +77,10 @@ resources:
         AttributeDefinitions:
           - AttributeName: transId
             AttributeType: S
+          - AttributeName: status
+            AttributeType: S
+          - AttributeName: toPay
+            AttributeType: N
         KeySchema:
           - AttributeName: transId
             KeyType: HASH
