@@ -10,7 +10,7 @@ exports.handler = async (event) => {
 		const item = {
 			transId: v4(),
 			cname,
-			status: 'PROGRESS',
+			transStatus: 'PROGRESS',
 			cart: [],
 			toPay: 0,
 		};

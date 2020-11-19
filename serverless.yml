@@ -48,6 +48,12 @@ functions:
       - http:
           path: /trans/{transId}
           method: post
+  closeTrans:
+    handler: src/handlers/closeTrans.handler
+    events:
+      - http:
+          path: /trans/close/{transId}
+          method: post
 
 resources:
   Resources:
@@ -77,7 +83,7 @@ resources:
         AttributeDefinitions:
           - AttributeName: transId
             AttributeType: S
-          - AttributeName: status
+          - AttributeName: transStatus
             AttributeType: S
           - AttributeName: toPay
             AttributeType: N

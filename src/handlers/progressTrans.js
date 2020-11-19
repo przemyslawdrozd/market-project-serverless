@@ -12,7 +12,7 @@ const getTrans = async (transId) => {
 	};
 	const { Item: trans } = await documentClient.get(params).promise();
 
-	if (!trans || trans.status !== 'PROGRESS') {
+	if (!trans || trans.transStatus !== 'PROGRESS') {
 		throw new Error('This transaction is not in progress');
 	}
 
@@ -61,7 +61,7 @@ exports.handler = async (event) => {
 			throw new Error('invalid quantity');
 		}
 
-		// Get current trans if exists and if status in progress
+		// Get current trans if exists and if transStatus in progress
 		const trans = await getTrans(transId);
 		console.log('trans ', trans);
 
