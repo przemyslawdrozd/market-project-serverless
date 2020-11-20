@@ -1,6 +1,8 @@
 const AWS = require('aws-sdk');
 const documentClient = new AWS.DynamoDB.DocumentClient();
+const SNS = new AWS.SNS();
 const transTable = process.env.transTableName;
+const snsTopic = process.env.snsCloseTrans;
 
 const updateTrans = async (transId) => {
 	const params = {
@@ -27,12 +29,18 @@ exports.handler = async (event) => {
 		// extract transId and item
 		const { transId } = event.pathParameters;
 
-		console.log('start payment');
-		await paymentProcessing(4000);
-		console.log('finish payment');
+		await paymentProcessing(3000);
 
 		// update trans to close if exists
 		const trans = await updateTrans(transId);
+		// TODO Send sns topic, create lambd to send email and sqs to analyze
+
+		const params = {
+			Message: JSON.stringify(trans.Attributes),
+			TopicArn: snsTopic,
+		};
+
+		await SNS.publish(params).promise();
 
 		return {
 			statusCode: 200,

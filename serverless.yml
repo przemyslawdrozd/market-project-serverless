@@ -4,6 +4,7 @@ custom:
   prefixName: myMarket
   itemTableName: ${self:custom.prefixName}-itemTable
   transTableName: ${self:custom.prefixName}-transTable
+  topicName: SendClosedTrans
 
 plugins:
   - serverless-offline
@@ -16,12 +17,18 @@ provider:
   environment:
     itemTableName: ${self:custom.itemTableName}
     transTableName: ${self:custom.transTableName}
+    snsCloseTrans: !Ref SnsCloseTrans
 
   iamRoleStatements:
     - Effect: Allow
       Action:
         - dynamodb:*
       Resource: '*'
+    - Effect: Allow
+      Action:
+        - SNS:Publish
+      Resource:
+        - !Ref SnsCloseTrans
 
 functions:
   getItem:
@@ -54,9 +61,19 @@ functions:
       - http:
           path: /trans/close/{transId}
           method: post
+  sendEmail:
+    handler: src/handlers/sendEmail.handler
+    events:
+      - sns:
+          arn: !Ref SnsCloseTrans
+          topicName: ${self:custom.topicName}
 
 resources:
   Resources:
+    SnsCloseTrans:
+      Type: AWS::SNS::Topic
+      Properties:
+        TopicName: ${self:custom.topicName}
     ItemTable:
       Type: AWS::DynamoDB::Table
       Properties:
