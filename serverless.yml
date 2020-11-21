@@ -67,6 +67,10 @@ functions:
       - sns:
           arn: !Ref SnsCloseTrans
           topicName: ${self:custom.topicName}
+  analyzeTrans:
+    handler: src/handlers/analyzeTrans.handler
+    events:
+      - sqs: arn:aws:sqs:eu-west-3:161829540768:QueueAnalyzeTrans
 
 resources:
   Resources:
@@ -74,6 +78,11 @@ resources:
       Type: AWS::SNS::Topic
       Properties:
         TopicName: ${self:custom.topicName}
+    SqsCloseTrans:
+      Type: AWS::SQS::Queue
+      Properties:
+        ReceiveMessageWaitTimeSeconds: 20
+        QueueName: QueueAnalyzeTrans
     ItemTable:
       Type: AWS::DynamoDB::Table
       Properties:
