@@ -4,9 +4,11 @@ const AWS = require('aws-sdk');
 exports.handler = async (event) => {
 	console.log('lambda sqs starts');
 	try {
-		console.log('event ', event);
-		// const { Message } = event.Records[0].Sns;
-		// console.log(JSON.parse(Message));
+		// console.log('event ', event);
+
+		const { Message } = JSON.parse(event.Records[0].body);
+		console.log('trans ', JSON.parse(Message));
+
 		return {
 			// statusCode: 200,
 			// body: JSON.stringify(item, null, 2),

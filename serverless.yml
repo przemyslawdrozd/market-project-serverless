@@ -26,9 +26,13 @@ provider:
       Resource: '*'
     - Effect: Allow
       Action:
-        - SNS:Publish
+        - sns:*
       Resource:
         - !Ref SnsCloseTrans
+    - Effect: Allow
+      Action:
+        - sqs:*
+      Resource: '*'
 
 functions:
   getItem:
@@ -74,10 +78,27 @@ functions:
 
 resources:
   Resources:
+    QueuePolicy:
+      Type: AWS::SQS::QueuePolicy
+      Properties:
+        Queues:
+          - https://sqs.eu-west-3.amazonaws.com/161829540768/QueueAnalyzeTrans
+        PolicyDocument:
+          Statement:
+            - Effect: Allow
+              Action:
+                - SQS:SendMessage
+                - SQS:ReceiveMessage
+              Resource: '*'
+              Principal:
+                AWS: '*'
     SnsCloseTrans:
       Type: AWS::SNS::Topic
       Properties:
         TopicName: ${self:custom.topicName}
+        Subscription:
+          - Endpoint: arn:aws:sqs:eu-west-3:161829540768:QueueAnalyzeTrans
+            Protocol: sqs
     SqsCloseTrans:
       Type: AWS::SQS::Queue
       Properties:
@@ -90,12 +111,6 @@ resources:
         AttributeDefinitions:
           - AttributeName: itemId
             AttributeType: S
-          - AttributeName: title
-            AttributeType: S
-          - AttributeName: price
-            AttributeType: N
-          - AttributeName: quantity
-            AttributeType: N
         KeySchema:
           - AttributeName: itemId
             KeyType: HASH
@@ -109,10 +124,6 @@ resources:
         AttributeDefinitions:
           - AttributeName: transId
             AttributeType: S
-          - AttributeName: transStatus
-            AttributeType: S
-          - AttributeName: toPay
-            AttributeType: N
         KeySchema:
           - AttributeName: transId
             KeyType: HASH
