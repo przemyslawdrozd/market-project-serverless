@@ -12,7 +12,7 @@ exports.handler = async (event) => {
 			cname,
 			transStatus: 'PROGRESS',
 			cart: [],
-			toPay: 0,
+			totalPrice: 0,
 		};
 
 		const params = {

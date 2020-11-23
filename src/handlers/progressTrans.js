@@ -20,16 +20,16 @@ const getTrans = async (transId) => {
 };
 
 const updateTrans = async (trans) => {
-	const { transId, cart, toPay } = trans;
+	const { transId, cart, totalPrice } = trans;
 	const params = {
 		TableName: transTable,
 		Key: {
 			transId,
 		},
-		UpdateExpression: 'SET cart = :c, toPay = :tp',
+		UpdateExpression: 'SET cart = :c, totalPrice = :tp',
 		ExpressionAttributeValues: {
 			':c': cart,
-			':tp': toPay,
+			':tp': totalPrice,
 		},
 	};
 	return documentClient.update(params).promise();
@@ -87,10 +87,14 @@ exports.handler = async (event) => {
 			});
 		}
 
-		const addPayment = price * quantity;
-		console.log('addPayement: ', addPayment);
-		trans.toPay += addPayment;
-		// TODO update trans in dynamodb
+		// addPayment
+		let { totalPrice } = trans;
+
+		const increasePrice = price * quantity;
+
+		totalPrice = totalPrice + increasePrice;
+		trans.totalPrice = Number(totalPrice.toFixed(2));
+
 		await updateTrans(trans);
 
 		return {
