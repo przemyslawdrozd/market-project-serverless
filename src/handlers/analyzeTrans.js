@@ -1,4 +1,5 @@
-const AWS = require('aws-sdk');
+const awsXRay = require('aws-xray-sdk');
+const AWS = awsXRay.captureAWS(require('aws-sdk'));
 const documentClient = new AWS.DynamoDB.DocumentClient();
 const analyzeTable = process.env.analyzeTableName;
 const MINUTE = 60;

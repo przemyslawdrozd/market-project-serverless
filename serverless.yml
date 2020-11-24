@@ -4,19 +4,23 @@ custom:
   prefixName: myMarket
   itemTableName: ${self:custom.prefixName}-itemTable
   transTableName: ${self:custom.prefixName}-transTable
+  analyzeTableName: ${self:custom.prefixName}-analyzeTable
   topicName: SendClosedTrans
 
 plugins:
   - serverless-offline
+  - serverless-plugin-tracing
 
 provider:
   name: aws
   runtime: nodejs12.x
   region: eu-west-3
   stage: ${opt:stage, 'dev'}
+  tracing: true
   environment:
     itemTableName: ${self:custom.itemTableName}
     transTableName: ${self:custom.transTableName}
+    analyzeTableName: ${self:custom.analyzeTableName}
     snsCloseTrans: !Ref SnsCloseTrans
 
   iamRoleStatements:
@@ -29,10 +33,12 @@ provider:
         - sns:*
       Resource:
         - !Ref SnsCloseTrans
-    - Effect: Allow
+    - Effect: 'Allow'
       Action:
-        - sqs:*
-      Resource: '*'
+        - 'xray:PutTraceSegments'
+        - 'xray:PutTelemetryRecords'
+      Resource:
+        - '*'
 
 functions:
   getItem:
@@ -127,6 +133,23 @@ resources:
         KeySchema:
           - AttributeName: transId
             KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+    AnalyzeTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:custom.analyzeTableName}
+        AttributeDefinitions:
+          - AttributeName: analyzeId
+            AttributeType: S
+          - AttributeName: creationId
+            AttributeType: N
+        KeySchema:
+          - AttributeName: analyzeId
+            KeyType: HASH
+          - AttributeName: creationId
+            KeyType: RANGE
         ProvisionedThroughput:
           ReadCapacityUnits: 1
           WriteCapacityUnits: 1

@@ -1,4 +1,5 @@
-const AWS = require('aws-sdk');
+const awsXRay = require('aws-xray-sdk');
+const AWS = awsXRay.captureAWS(require('aws-sdk'));
 const documentClient = new AWS.DynamoDB.DocumentClient();
 const SNS = new AWS.SNS();
 const transTable = process.env.transTableName;
@@ -33,7 +34,6 @@ exports.handler = async (event) => {
 
 		// update trans to close if exists
 		const trans = await updateTrans(transId);
-		// TODO Send sns topic, create lambd to send email and sqs to analyze
 
 		const params = {
 			Message: JSON.stringify(trans.Attributes),
