@@ -9,7 +9,7 @@ exports.handler = async (event) => {
 		const { cname } = event.pathParameters;
 
 		const item = {
-			transId: v4(),
+			transId: v4().split('-')[0],
 			cname,
 			transStatus: 'PROGRESS',
 			cart: [],

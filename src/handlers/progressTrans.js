@@ -58,6 +58,7 @@ exports.handler = async (event) => {
 		const { transId } = event.pathParameters;
 		const { itemId, quantity } = JSON.parse(event.body);
 
+		console.log(`[ INFO ] trans id: ${transId} | itemId: ${itemId}`);
 		if (quantity < 0) {
 			throw new Error('invalid quantity');
 		}

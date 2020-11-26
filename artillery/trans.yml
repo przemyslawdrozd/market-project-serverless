@@ -1,0 +1,35 @@
+config:
+  target: https://myapi.com/dev/
+  phases:
+    - duration: 50
+      arrivalCount: 33
+  processor: './my-functions.js'
+
+scenarios:
+  - flow:
+      - log: '1. create new transacion'
+      # - function: 'setupSomeData'
+      - log: 'func created'
+      - post:
+          url: '/trans/create/test-cname'
+          capture:
+            json: '$.transId'
+            as: 'transId'
+
+      - think: 1
+      - log: '2. tans in progress item'
+      - loop:
+          - log: '2.1 purchase..'
+          - think: 1
+          - post:
+              beforeRequest: 'setJSONBody'
+              url: '/trans/{{ transId }}'
+              json:
+                itemId: '{{ itemId }}'
+                quantity: '{{ quantity }}'
+        whileTrue: 'isContinue'
+
+      - think: 1
+      - log: '3. close trans'
+      - post:
+          url: '/trans/close/{{ transId }}'

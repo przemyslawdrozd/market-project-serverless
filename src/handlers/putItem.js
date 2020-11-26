@@ -7,7 +7,7 @@ const { v4 } = require('uuid');
 exports.handler = async (event) => {
 	try {
 		const newItem = JSON.parse(event.body);
-		newItem.itemId = v4();
+		newItem.itemId = v4().split('-')[0];
 		const params = {
 			TableName: tableName,
 			Item: newItem,
