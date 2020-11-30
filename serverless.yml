@@ -16,7 +16,7 @@ provider:
   runtime: nodejs12.x
   region: eu-west-3
   stage: ${opt:stage, 'dev'}
-  tracing: false
+  tracing: true
   environment:
     itemTableName: ${self:custom.itemTableName}
     transTableName: ${self:custom.transTableName}
@@ -53,6 +53,12 @@ functions:
       - http:
           path: /item
           method: post
+  loadItems:
+    handler: src/handlers/loadItems.handler
+    events:
+      - http:
+          path: /item/load
+          method: post
   openTrans:
     handler: src/handlers/openTrans.handler
     events:
@@ -81,6 +87,12 @@ functions:
     handler: src/handlers/analyzeTrans.handler
     events:
       - sqs: arn:aws:sqs:eu-west-3:161829540768:QueueAnalyzeTrans
+  analyzeStats:
+    handler: src/handlers/analyzeStats.handler
+    events:
+      - http:
+          path: /trans/stats
+          method: get
 
 resources:
   Resources:
@@ -121,8 +133,8 @@ resources:
           - AttributeName: itemId
             KeyType: HASH
         ProvisionedThroughput:
-          ReadCapacityUnits: 1
-          WriteCapacityUnits: 1
+          ReadCapacityUnits: 5
+          WriteCapacityUnits: 15
     TransTable:
       Type: AWS::DynamoDB::Table
       Properties:
@@ -134,8 +146,8 @@ resources:
           - AttributeName: transId
             KeyType: HASH
         ProvisionedThroughput:
-          ReadCapacityUnits: 1
-          WriteCapacityUnits: 1
+          ReadCapacityUnits: 5
+          WriteCapacityUnits: 21
     AnalyzeTable:
       Type: AWS::DynamoDB::Table
       Properties:
