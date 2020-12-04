@@ -1,31 +1,30 @@
-const awsXRay = require('aws-xray-sdk');
-const AWS = awsXRay.captureAWS(require('aws-sdk'));
-const documentClient = new AWS.DynamoDB.DocumentClient();
 const tableName = process.env.itemTableName;
+const dynamo = require('../utils/Dynamo');
+const { NotFound } = require('../utils/errors');
 
 exports.handler = async (event) => {
+	console.log('getItem start');
 	try {
 		const itemId = event.pathParameters.id;
 		let result;
 		if (itemId === 'all') {
-			result = await documentClient.scan({ TableName: tableName }).promise();
+			result = await dynamo.scan(tableName);
 		} else {
-			const params = {
-				TableName: tableName,
-				Key: {
-					itemId,
-				},
-			};
-			result = await documentClient.get(params).promise();
+			result = await dynamo.get(tableName, itemId);
 		}
-		console.log('result ', result);
+
+		if (!result) {
+			throw new NotFound(`Invalid key: ${itemId}`);
+		}
+
 		return {
 			statusCode: 200,
 			body: JSON.stringify(result, null, 2),
 		};
 	} catch (error) {
+		console.log(error);
 		return {
-			statusCode: 400,
+			statusCode: error.statusCode,
 			body: JSON.stringify(error),
 		};
 	}
