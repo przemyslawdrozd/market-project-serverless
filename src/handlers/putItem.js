@@ -1,10 +1,11 @@
 // POST /item
-const tableName = process.env.itemTableName;
-const { v4 } = require('uuid');
 
 const dynamo = require('../utils/Dynamo');
 const { BadRequest } = require('../utils/errors');
+const response = require('../utils/response');
+const { v4 } = require('uuid');
 
+const tableName = process.env.itemTableName;
 const TITLE_REGEX = /^[A-Za-z ]+$/;
 
 const validateRequest = (request) => {
@@ -33,20 +34,16 @@ const validateRequest = (request) => {
 };
 
 exports.handler = async (event) => {
-	console.log('putItem start');
 	try {
 		const newItem = validateRequest(event);
 		newItem.itemId = v4();
 
 		await dynamo.put(tableName, newItem);
-		return {
-			statusCode: 200,
-			body: JSON.stringify(newItem),
-		};
+
+		return response.success({
+			message: 'success',
+		});
 	} catch (error) {
-		return {
-			statusCode: 400,
-			body: JSON.stringify(error),
-		};
+		return response.error(error);
 	}
 };
