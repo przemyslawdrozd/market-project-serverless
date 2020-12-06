@@ -9,7 +9,7 @@ const scan = (tableName) => {
 		.promise()
 		.then((response) => response.Items)
 		.catch((error) => {
-			throw new ExternalError(error.message);
+			throw new errors.ExternalError(error.message);
 		});
 };
 
@@ -35,10 +35,9 @@ const put = (tableName, item) => {
 			Item: item,
 		})
 		.promise()
-		.then((result) => {
-			console.log('result ', result);
-		})
-		.catch((error) => {});
+		.catch((error) => {
+			throw new errors.ExternalError(error.message);
+		});
 };
 
 // updateTrans
@@ -105,4 +104,5 @@ const loadBatchItems = (tableName, batch) => {
 module.exports = {
 	scan,
 	get,
+	put,
 };
