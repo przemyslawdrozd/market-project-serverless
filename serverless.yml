@@ -60,8 +60,8 @@ functions:
       - http:
           path: /item/load
           method: post
-  openTrans:
-    handler: src/handlers/openTrans.handler
+  createTrans:
+    handler: src/handlers/createTrans.handler
     events:
       - http:
           path: /trans/create/{cname}
@@ -148,7 +148,7 @@ resources:
             KeyType: HASH
         ProvisionedThroughput:
           ReadCapacityUnits: 5
-          WriteCapacityUnits: 21
+          WriteCapacityUnits: 5
     AnalyzeTable:
       Type: AWS::DynamoDB::Table
       Properties:

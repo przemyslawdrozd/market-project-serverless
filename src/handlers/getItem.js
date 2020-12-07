@@ -1,5 +1,5 @@
 // GET /item/{id}
-const dynamo = require('../utils/Dynamo');
+const dynamo = require('../utils/dynamo');
 const { NotFound, BadRequest } = require('../utils/errors');
 const response = require('../utils/response');
 

@@ -1,6 +1,6 @@
 // POST /item
 
-const dynamo = require('../utils/Dynamo');
+const dynamo = require('../utils/dynamo');
 const { BadRequest } = require('../utils/errors');
 const response = require('../utils/response');
 const { v4 } = require('uuid');
