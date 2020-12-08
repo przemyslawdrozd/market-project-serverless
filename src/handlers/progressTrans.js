@@ -1,113 +1,31 @@
-const awsXRay = require('aws-xray-sdk');
-const AWS = awsXRay.captureAWS(require('aws-sdk'));
-const documentClient = new AWS.DynamoDB.DocumentClient();
-const transTable = process.env.transTableName;
-const itemTable = process.env.itemTableName;
+// POST trans/{transId}
+const errors = require('../utils/errors');
+const response = require('../utils/response');
+const transaction = require('../service/transaction');
 
-const getTrans = async (transId) => {
-	const params = {
-		TableName: transTable,
-		Key: {
-			transId,
-		},
-	};
-	const { Item: trans } = await documentClient.get(params).promise();
+const validateRequest = (request) => {
+	const { transId } = request.pathParameters;
+	const { itemId, quantity } = JSON.parse(request.body);
 
-	if (!trans || trans.transStatus !== 'PROGRESS') {
-		throw new Error('This transaction is not in progress');
+	if (!itemId) {
+		throw new errors.BadRequest('invalid item id');
 	}
 
-	return trans;
-};
+	if (!quantity || quantity <= 0) {
+		throw new errors.BadRequest('Invalid quantity');
+	}
 
-const updateTrans = async (trans) => {
-	const { transId, cart, totalPrice } = trans;
-	const params = {
-		TableName: transTable,
-		Key: {
-			transId,
-		},
-		UpdateExpression: 'SET cart = :c, totalPrice = :tp',
-		ExpressionAttributeValues: {
-			':c': cart,
-			':tp': totalPrice,
-		},
-	};
-	return documentClient.update(params).promise();
-};
-
-const updateItem = async (itemId, quantity) => {
-	const params = {
-		TableName: itemTable,
-		Key: {
-			itemId,
-		},
-		UpdateExpression: 'SET quantity = quantity - :q',
-		ConditionExpression: 'quantity >= :q',
-		ExpressionAttributeValues: {
-			':q': quantity,
-		},
-		ReturnValues: 'ALL_NEW',
-	};
-	return documentClient.update(params).promise();
+	return { transId, itemId, quantity };
 };
 
 exports.handler = async (event) => {
 	try {
-		// extract transId and item
-		const { transId } = event.pathParameters;
-		const { itemId, quantity } = JSON.parse(event.body);
+		const request = validateRequest(event);
 
-		console.log(`[ INFO ] trans id: ${transId} | itemId: ${itemId}`);
-		if (quantity < 0) {
-			throw new Error('invalid quantity');
-		}
+		const trans = await transaction.putProductIntoBasket(request);
 
-		// Get current trans if exists and if transStatus in progress
-		const trans = await getTrans(transId);
-		console.log('trans ', trans);
-
-		// decrease quantity of taken item
-		const result = await updateItem(itemId, quantity);
-		// console.log('result ', result);
-
-		const { price, title } = result.Attributes;
-
-		// update trans TODO check to not clone same item
-		const cItem = trans.cart.find((item) => item.itemId === itemId);
-
-		if (cItem) {
-			console.log('cItem found', cItem.title);
-			cItem.quantity += quantity;
-		} else {
-			console.log('cItem not found found');
-			trans.cart.push({
-				itemId,
-				title,
-				quantity,
-				price,
-			});
-		}
-
-		// addPayment
-		let { totalPrice } = trans;
-
-		const increasePrice = price * quantity;
-
-		totalPrice = totalPrice + increasePrice;
-		trans.totalPrice = Number(totalPrice.toFixed(2));
-
-		await updateTrans(trans);
-
-		return {
-			statusCode: 200,
-			body: JSON.stringify(trans, null, 2),
-		};
+		return response.success(trans);
 	} catch (error) {
-		console.log('error ', error.message);
-		return {
-			statusCode: 400,
-			body: error.message,
-		};
+		return response.error(error);
 	}
 };

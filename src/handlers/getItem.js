@@ -3,7 +3,8 @@ const dynamo = require('../utils/dynamo');
 const { NotFound, BadRequest } = require('../utils/errors');
 const response = require('../utils/response');
 
-const tableName = process.env.itemTableName; // think
+const TABLE_ITEM = process.env.itemTableName;
+const ALL = 'all';
 
 // example
 const validateRequest = (request) => {
@@ -21,10 +22,10 @@ exports.handler = async (event) => {
 		const itemId = event.pathParameters.id;
 		let result;
 
-		if (itemId === 'all') {
-			result = await dynamo.scan(tableName);
+		if (itemId === ALL) {
+			result = await dynamo.scan(TABLE_ITEM);
 		} else {
-			result = await dynamo.get(tableName, itemId);
+			result = await dynamo.getItem(itemId);
 		}
 
 		if (!result) {

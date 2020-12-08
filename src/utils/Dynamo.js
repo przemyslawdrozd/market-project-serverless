@@ -3,6 +3,9 @@ const AWS = awsXRay.captureAWS(require('aws-sdk'));
 const documentClient = new AWS.DynamoDB.DocumentClient();
 const errors = require('./errors');
 
+const TABLE_TRANS = process.env.transTableName;
+const TABLE_ITEM = process.env.itemTableName;
+
 const scan = (tableName) => {
 	return documentClient
 		.scan({ TableName: tableName })
@@ -14,11 +17,24 @@ const scan = (tableName) => {
 };
 
 // getItem, getTrans
-const get = (tableName, itemId) => {
+const getItem = (itemId) => {
 	return documentClient
 		.get({
-			TableName: tableName,
+			TableName: TABLE_ITEM,
 			Key: { itemId },
+		})
+		.promise()
+		.then((response) => response.Item)
+		.catch((error) => {
+			throw new errors.ExternalError(error.message);
+		});
+};
+
+const getTrans = (transId) => {
+	return documentClient
+		.get({
+			TableName: TABLE_TRANS,
+			Key: { transId },
 		})
 		.promise()
 		.then((response) => response.Item)
@@ -40,28 +56,10 @@ const put = (tableName, item) => {
 		});
 };
 
-// updateTrans
-const updateTrans = (tableName, trans) => {
-	const { transId, cart, totalPrice } = trans;
+const updateItem = (itemId, quantity) => {
 	return documentClient
 		.update({
-			TableName: tableName,
-			Key: {
-				transId,
-			},
-			UpdateExpression: 'SET cart = :c, totalPrice = :tp',
-			ExpressionAttributeValues: {
-				':c': cart,
-				':tp': totalPrice,
-			},
-		})
-		.promise();
-};
-
-const updateItem = async (tableName, itemId, quantity) => {
-	return documentClient
-		.update({
-			TableName: tableName,
+			TableName: TABLE_ITEM,
 			Key: {
 				itemId,
 			},
@@ -71,6 +69,32 @@ const updateItem = async (tableName, itemId, quantity) => {
 				':q': quantity,
 			},
 			ReturnValues: 'ALL_NEW',
+		})
+		.promise()
+		.then((response) => response.Attributes)
+		.catch((error) => {
+			if (error.statusCode === 400) {
+				throw new errors.BadRequest(error.message);
+			} else {
+				throw new errors.ExternalError(error.message);
+			}
+		});
+};
+
+// updateTrans
+const updateTrans = (trans) => {
+	const { transId, cart, totalPrice } = trans;
+	return documentClient
+		.update({
+			TableName: TABLE_TRANS,
+			Key: {
+				transId,
+			},
+			UpdateExpression: 'SET cart = :c, totalPrice = :tp',
+			ExpressionAttributeValues: {
+				':c': cart,
+				':tp': totalPrice,
+			},
 		})
 		.promise();
 };
@@ -103,6 +127,9 @@ const loadBatchItems = (tableName, batch) => {
 
 module.exports = {
 	scan,
-	get,
+	getItem,
+	getTrans,
 	put,
+	updateItem,
+	updateTrans,
 };
