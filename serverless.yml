@@ -22,7 +22,7 @@ provider:
     transTableName: ${self:custom.transTableName}
     analyzeTableName: ${self:custom.analyzeTableName}
     snsCloseTrans: !Ref SnsCloseTrans
-    _X_AMZN_TRACE_ID: 0
+    # _X_AMZN_TRACE_ID: 0
 
   iamRoleStatements:
     - Effect: Allow

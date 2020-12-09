@@ -1,6 +1,5 @@
 // POST trans/{transId}
-const errors = require('../utils/errors');
-const response = require('../utils/response');
+const { errors, response } = require('../utils');
 const transaction = require('../service/transaction');
 
 const validateRequest = (request) => {

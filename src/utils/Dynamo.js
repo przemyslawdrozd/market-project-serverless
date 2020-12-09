@@ -75,9 +75,8 @@ const updateItem = (itemId, quantity) => {
 		.catch((error) => {
 			if (error.statusCode === 400) {
 				throw new errors.BadRequest(error.message);
-			} else {
-				throw new errors.ExternalError(error.message);
 			}
+			throw new errors.ExternalError(error.message);
 		});
 };
 
@@ -97,6 +96,29 @@ const updateTrans = (trans) => {
 			},
 		})
 		.promise();
+};
+
+const closeTrans = (transId) => {
+	return documentClient
+		.update({
+			TableName: TABLE_TRANS,
+			Key: { transId },
+			UpdateExpression: 'SET transStatus = :c',
+			ConditionExpression: 'transStatus = :s',
+			ExpressionAttributeValues: {
+				':c': 'CLOSED',
+				':s': 'PROGRESS',
+			},
+			ReturnValues: 'ALL_NEW',
+		})
+		.promise()
+		.then((response) => response.Attributes)
+		.catch((error) => {
+			if (error.statusCode === 400) {
+				throw new errors.BadRequest(error.message);
+			}
+			throw new errors.ExternalError(error.message);
+		});
 };
 
 const updateAnalyze = (tableName, creationId, totalPrice) => {
@@ -132,4 +154,5 @@ module.exports = {
 	put,
 	updateItem,
 	updateTrans,
+	closeTrans,
 };

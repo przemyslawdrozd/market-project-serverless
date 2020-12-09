@@ -1,7 +1,5 @@
 // GET /item/{id}
-const dynamo = require('../utils/dynamo');
-const { NotFound, BadRequest } = require('../utils/errors');
-const response = require('../utils/response');
+const { dynamo, errors, response } = require('../utils/dynamo');
 
 const TABLE_ITEM = process.env.itemTableName;
 const ALL = 'all';
@@ -11,7 +9,7 @@ const validateRequest = (request) => {
 	const { id } = request.pathParameters;
 
 	if (!id) {
-		throw new BadRequest('Invalid path variable');
+		throw new errors.BadRequest('Invalid path variable');
 	}
 };
 
@@ -29,7 +27,7 @@ exports.handler = async (event) => {
 		}
 
 		if (!result) {
-			throw new NotFound(`Invalid key: ${itemId}`);
+			throw new errors.NotFound(`Invalid key: ${itemId}`);
 		}
 
 		return response.success(result);
