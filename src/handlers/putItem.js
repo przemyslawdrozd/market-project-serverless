@@ -1,6 +1,8 @@
 // POST /item
 
-const { dynamo, errors, response } = require('../utils');
+const dynamo = require('../utils/dynamo');
+const response = require('../utils/response');
+const errors = require('../utils/errors');
 const { v4 } = require('uuid');
 
 const tableName = process.env.itemTableName;

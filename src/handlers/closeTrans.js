@@ -1,5 +1,7 @@
 // POST /trans/close/{transId}
-const { dynamo, response, sns } = require('../utils');
+const dynamo = require('../utils/dynamo');
+const response = require('../utils/response');
+const sns = require('../utils/sns');
 
 const paymentProcessing = (ms) =>
 	new Promise((resolve) => setTimeout(resolve, ms));

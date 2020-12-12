@@ -1,6 +1,7 @@
 // POST /trans/create/{cname}
 
-const { dynamo, response } = require('../utils');
+const dynamo = require('../utils/dynamo');
+const response = require('../utils/response');
 const { v4 } = require('uuid');
 
 const transTable = process.env.transTableName;

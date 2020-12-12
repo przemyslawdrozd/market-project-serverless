@@ -1,5 +1,8 @@
 // GET /item/{id}
-const { dynamo, errors, response } = require('../utils/dynamo');
+
+const dynamo = require('../utils/dynamo');
+const response = require('../utils/response');
+const errors = require('../utils/errors');
 
 const TABLE_ITEM = process.env.itemTableName;
 const ALL = 'all';

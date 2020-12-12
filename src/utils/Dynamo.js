@@ -3,8 +3,9 @@ const AWS = awsXRay.captureAWS(require('aws-sdk'));
 const documentClient = new AWS.DynamoDB.DocumentClient();
 const errors = require('./errors');
 
-const TABLE_TRANS = process.env.transTableName;
+const TABLE_ANALYZE = process.env.analyzeTableName;
 const TABLE_ITEM = process.env.itemTableName;
+const TABLE_TRANS = process.env.transTableName;
 
 const scan = (tableName) => {
 	return documentClient
@@ -99,21 +100,27 @@ const updateTrans = (trans) => {
 };
 
 const closeTrans = (transId) => {
+	console.log('closetrans ', transId);
 	return documentClient
 		.update({
 			TableName: TABLE_TRANS,
 			Key: { transId },
-			UpdateExpression: 'SET transStatus = :c',
+			UpdateExpression: 'SET transStatus = :c, closedTmp = :ctmp',
 			ConditionExpression: 'transStatus = :s',
 			ExpressionAttributeValues: {
 				':c': 'CLOSED',
 				':s': 'PROGRESS',
+				':ctmp': Math.floor(Date.now() / 1000),
 			},
 			ReturnValues: 'ALL_NEW',
 		})
 		.promise()
-		.then((response) => response.Attributes)
+		.then((response) => {
+			console.log('then resp ', response);
+			return response.Attributes;
+		})
 		.catch((error) => {
+			console.log('catch error ', error);
 			if (error.statusCode === 400) {
 				throw new errors.BadRequest(error.message);
 			}
@@ -121,10 +128,27 @@ const closeTrans = (transId) => {
 		});
 };
 
-const updateAnalyze = (tableName, creationId, totalPrice) => {
+const queryAnalyze = (tmp) => {
+	return documentClient
+		.query({
+			TableName: TABLE_ANALYZE,
+			KeyConditionExpression: 'analyzeId = :id and creationId > :tmp',
+			ExpressionAttributeValues: {
+				':id': 'uuid',
+				':tmp': tmp,
+			},
+		})
+		.promise()
+		.then((resp) => resp.Items)
+		.catch((error) => {
+			console.log('catch error ', error);
+		});
+};
+
+const updateAnalyze = (creationId, totalPrice) => {
 	return documentClient
 		.update({
-			TableName: tableName,
+			TableName: TABLE_ANALYZE,
 			Key: {
 				analyzeId: 'uuid',
 				creationId: creationId,
@@ -155,4 +179,6 @@ module.exports = {
 	updateItem,
 	updateTrans,
 	closeTrans,
+	queryAnalyze,
+	updateAnalyze,
 };
