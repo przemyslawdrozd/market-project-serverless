@@ -1,43 +1,38 @@
-const awsXRay = require('aws-xray-sdk');
-const AWS = awsXRay.captureAWS(require('aws-sdk'));
-const documentClient = new AWS.DynamoDB.DocumentClient();
+// GET /trans/stats
+const dynamo = require('../utils/dynamo');
+const response = require('../utils/response');
+
 const analyzeTable = process.env.analyzeTableName;
 const SEC = 1000;
 
 exports.handler = async (event) => {
 	try {
-		console.log('scan analyze table');
-		const analyzeTrans = await documentClient
-			.scan({ TableName: analyzeTable })
-			.promise();
+		const analyzeTrans = await dynamo.scan(analyzeTable);
 
 		let sum = 0;
-		const parsedTrans = analyzeTrans.Items.map((trans) => {
+		const parsedTrans = analyzeTrans.map((trans) => {
 			const { creationId, totalPrice } = trans;
-			sum += totalPrice;
+
 			const [date, time] = new Date(creationId * SEC)
 				.toLocaleString()
-				.split(',');
+				.split(' ');
 
-			const [day, month] = date.split('/');
-			const [hour, min] = time.split(':');
-			return {
-				date: `${month}/${day} ${hour}:${min}`,
+			const [hour, minute] = time.split(':');
+			const resp = {
+				date,
+				time: `${hour}:${minute}`,
 				price: totalPrice,
 			};
+
+			sum += totalPrice;
+			return resp;
 		});
 
-		return {
-			statusCode: 200,
-			body: JSON.stringify({
-				totalPrice: sum,
-				parsedTrans,
-			}),
-		};
+		return response.success({
+			totalPrice: sum,
+			parsedTrans,
+		});
 	} catch (error) {
-		return {
-			statusCode: 400,
-			body: JSON.stringify(error),
-		};
+		return response.error(error);
 	}
 };
