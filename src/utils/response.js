@@ -18,7 +18,7 @@ const error = (error) => {
 		// 	'Access-Control-Allow-Methods': '*',
 		// 	'Access-Control-Allow-Origin': '*',
 		// },
-		statusCode: error.statusCode,
+		statusCode: error.statusCode || 500,
 		body: JSON.stringify(error),
 	};
 };

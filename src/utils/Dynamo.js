@@ -146,7 +146,7 @@ const queryAnalyze = (tmp) => {
 };
 
 const updateAnalyze = (creationId, totalPrice) => {
-	return documentClient
+	documentClient
 		.update({
 			TableName: TABLE_ANALYZE,
 			Key: {
@@ -161,11 +161,11 @@ const updateAnalyze = (creationId, totalPrice) => {
 		.promise();
 };
 
-const loadBatchItems = (tableName, batch) => {
+const putBatch = (batch) => {
 	documentClient
 		.batchWrite({
 			RequestItems: {
-				[tableName]: batch,
+				[TABLE_ITEM]: batch,
 			},
 		})
 		.promise();
@@ -181,4 +181,5 @@ module.exports = {
 	closeTrans,
 	queryAnalyze,
 	updateAnalyze,
+	putBatch,
 };

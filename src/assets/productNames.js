@@ -1,4 +1,4 @@
-const itemNames = [
+const productNames = [
 	'sailboat',
 	'soda can',
 	'milk',
@@ -52,5 +52,5 @@ const itemNames = [
 ];
 
 module.exports = {
-	itemNames,
+	productNames,
 };
