@@ -45,16 +45,17 @@ const getTrans = (transId) => {
 };
 
 // putItem, putTrans
-const put = (tableName, item) => {
-	return documentClient
-		.put({
-			TableName: tableName,
-			Item: item,
-		})
-		.promise()
-		.catch((error) => {
-			throw new errors.ExternalError(error.message);
-		});
+const put = async (tableName, item) => {
+	try {
+		return documentClient
+			.put({
+				TableName: tableName,
+				Item: item,
+			})
+			.promise();
+	} catch (error) {
+		throw new errors.ExternalError(error.message);
+	}
 };
 
 const updateItem = (itemId, quantity) => {
@@ -161,8 +162,8 @@ const updateAnalyze = (creationId, totalPrice) => {
 		.promise();
 };
 
-const putBatch = (batch) => {
-	documentClient
+const putBatch = async (batch) => {
+	await documentClient
 		.batchWrite({
 			RequestItems: {
 				[TABLE_ITEM]: batch,

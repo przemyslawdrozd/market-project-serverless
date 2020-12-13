@@ -22,10 +22,7 @@ exports.handler = async (event) => {
 
 		await dynamo.put(transTable, item);
 
-		return response.success({
-			message: 'success',
-			newItem: item,
-		});
+		return response.success(item);
 	} catch (error) {
 		return response.error(error);
 	}

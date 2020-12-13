@@ -135,7 +135,7 @@ resources:
             KeyType: HASH
         ProvisionedThroughput:
           ReadCapacityUnits: 5
-          WriteCapacityUnits: 15
+          WriteCapacityUnits: 10
     TransTable:
       Type: AWS::DynamoDB::Table
       Properties:

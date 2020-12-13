@@ -58,7 +58,9 @@ exports.handler = async (event) => {
 
 		const batches = createBatches(requests);
 
-		batches.forEach((batch) => dynamo.putBatch(batch));
+		for (let i = 0; i < batches.length; i++) {
+			await dynamo.putBatch(batches[i]);
+		}
 
 		return response.success({
 			message: `Success - put ${requests.length} products`,
