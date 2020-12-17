@@ -36,12 +36,14 @@ const validateRequest = (request) => {
 exports.handler = async (event) => {
 	try {
 		const newItem = validateRequest(event);
-		newItem.itemId = v4();
+
+		const productId = v4();
+		newItem.itemId = productId;
 
 		await dynamo.put(tableName, newItem);
 
 		return response.success({
-			message: 'success',
+			productId,
 		});
 	} catch (error) {
 		return response.error(error);
