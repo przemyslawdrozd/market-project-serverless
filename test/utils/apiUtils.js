@@ -28,8 +28,32 @@ const getItem = (id) => {
 		.catch((error) => error.response);
 };
 
+const createTrans = (cname) => {
+	return axios
+		.post(BASE_URL + 'trans/create/' + cname)
+		.then((resp) => resp)
+		.catch((error) => error.response);
+};
+
+const progressTrans = (transId, request) => {
+	return axios
+		.post(BASE_URL + 'trans/' + transId, request)
+		.then((resp) => resp)
+		.catch((error) => error.response);
+};
+
+const closeTrans = (transId) => {
+	return axios
+		.post(BASE_URL + 'trans/close/' + transId)
+		.then((resp) => resp)
+		.catch((error) => error.response);
+};
+
 module.exports = {
 	initBaseUrl,
 	putItem,
 	getItem,
+	createTrans,
+	progressTrans,
+	closeTrans,
 };

@@ -1,20 +1,20 @@
 const apiUtils = require('../utils/apiUtils');
 
-describe('Func tests', () => {
+describe('Int product tests', () => {
 	beforeAll(() => {
 		apiUtils.initBaseUrl();
 	});
 
 	describe('Product CRUD', () => {
-		let productId = '15f3c138-3c17-497c-b13d-029f7d0c70c5'; // temp
-		// test('200 - Should create new product and return productId', async () => {
-		// 	const request = createProduct('testProduct', 1.01, 1);
-		// 	const { data, status } = await apiUtils.putItem(request);
+		let productId = '';
+		test('200 - Should create new product and return productId', async () => {
+			const request = createProduct('testProduct', 1.01, 1);
+			const { data, status } = await apiUtils.putItem(request);
 
-		// 	productId = data.productId;
-		// 	expect(data.productId).not.toBeUndefined();
-		// 	expect(status).toEqual(200);
-		// });
+			productId = data.productId;
+			expect(data.productId).not.toBeUndefined();
+			expect(status).toEqual(200);
+		});
 
 		test('400 - Should throw error when title is incorrect', async () => {
 			const request = createProduct('incorrect_title');
