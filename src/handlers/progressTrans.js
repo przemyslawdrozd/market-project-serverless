@@ -6,10 +6,10 @@ const transaction = require('../service/transaction');
 
 const validateRequest = (request) => {
 	const { transId } = request.pathParameters;
-	const { itemId, quantity } = JSON.parse(request.body);
+	const { itemId, quantity } = JSON.parse(request.body) || {};
 
 	if (!itemId) {
-		throw new errors.BadRequest('invalid item id');
+		throw new errors.BadRequest('missing item id');
 	}
 
 	if (!quantity || quantity <= 0) {
